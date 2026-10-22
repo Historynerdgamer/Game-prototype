@@ -30,6 +30,7 @@
       font-family: Arial, Helvetica, sans-serif;
       background: linear-gradient(180deg, var(--bg1), var(--bg2));
       color: var(--text);
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -117,6 +118,9 @@
       cursor: pointer;
       transition: transform 0.12s ease, border-color 0.12s ease;
       text-align: left;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .tool:hover {
@@ -147,6 +151,7 @@
       font-size: 0.92rem;
       font-weight: 700;
       padding: 12px 10px;
+      touch-action: manipulation;
     }
 
     h3 {
@@ -235,6 +240,9 @@
       min-height: 650px;
       background: linear-gradient(180deg, #92d79c 0%, #73bf87 100%);
       cursor: crosshair;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     ul {
@@ -254,6 +262,34 @@
       .left-panel { order: 2; }
       .right-panel { order: 3; }
       canvas { min-height: 500px; }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 10px;
+      }
+
+      #app {
+        gap: 10px;
+      }
+
+      .tool-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .title {
+        font-size: 1.4rem;
+        letter-spacing: 0.04em;
+      }
+
+      .tool {
+        padding: 8px 10px;
+        font-size: 0.82rem;
+      }
+
+      .money {
+        font-size: 1.7rem;
+      }
     }
   </style>
 </head>
@@ -325,8 +361,8 @@
         <h3>How to Play</h3>
         <ul>
           <li>Select a tool from the left panel.</li>
-          <li>Click a tile to place a building or road.</li>
-          <li>Right-click to erase.</li>
+          <li>Tap a tile to place a building or road.</li>
+          <li>Use two-finger or long press to erase.</li>
           <li>Switch states to move through all 50 states by statehood order.</li>
           <li>Everything is visible immediately on the map.</li>
         </ul>
@@ -690,7 +726,7 @@
       updateHud();
     }
 
-    function getCellFromMouse(event) {
+    function getCellFromPointer(event) {
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
@@ -712,15 +748,16 @@
       render();
     }
 
-    function handleCanvasClick(event) {
-      const cell = getCellFromMouse(event);
+    function handleCanvasPointer(event) {
+      event.preventDefault();
+      const cell = getCellFromPointer(event);
       if (!cell) return;
       placeTile(cell.x, cell.y);
     }
 
     function handleContextMenu(event) {
       event.preventDefault();
-      const cell = getCellFromMouse(event);
+      const cell = getCellFromPointer(event);
       if (!cell) return;
       grid[cell.y][cell.x] = null;
       render();
@@ -747,11 +784,19 @@
       });
 
       document.querySelectorAll('.tool').forEach((button) => {
-        button.addEventListener('click', () => setTool(button.dataset.tool));
+        button.addEventListener('pointerdown', (event) => {
+          event.preventDefault();
+          setTool(button.dataset.tool);
+        });
       });
 
-      canvas.addEventListener('click', handleCanvasClick);
+      canvas.addEventListener('pointerdown', handleCanvasPointer);
       canvas.addEventListener('contextmenu', handleContextMenu);
+      canvas.addEventListener('touchstart', (event) => {
+        if (event.touches && event.touches.length > 1) {
+          event.preventDefault();
+        }
+      }, { passive: false });
 
       switchState(0);
     }
