@@ -9,17 +9,13 @@
       --bg1: #0b1220;
       --bg2: #111827;
       --panel: rgba(15, 23, 42, 0.92);
-      --panel-alt: rgba(17, 24, 39, 0.96);
       --text: #edf6ff;
       --muted: #b8c6d9;
       --border: rgba(255,255,255,0.08);
+      --tool-bg: rgba(255,255,255,0.04);
       --gold: #fbbf24;
       --green: #22c55e;
-      --pink: #ec4899;
-      --road: #5a6473;
-      --grass: #8bd987;
-      --shadow: rgba(2, 6, 23, 0.45);
-      --tool-bg: rgba(255,255,255,0.04);
+      --shadow: rgba(2, 6, 23, 0.48);
     }
 
     * { box-sizing: border-box; }
@@ -27,14 +23,14 @@
     html, body {
       margin: 0;
       min-height: 100%;
-      font-family: Arial, Helvetica, sans-serif;
       background: linear-gradient(180deg, var(--bg1), var(--bg2));
       color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      padding: 18px;
+      padding: 16px;
       display: flex;
       justify-content: center;
       align-items: stretch;
@@ -42,10 +38,10 @@
 
     #app {
       width: 100%;
-      max-width: 1440px;
-      min-height: 780px;
+      max-width: 1460px;
+      min-height: 760px;
       display: grid;
-      grid-template-columns: 300px 1fr 300px;
+      grid-template-columns: 290px 1fr 290px;
       gap: 14px;
     }
 
@@ -57,7 +53,8 @@
       overflow: hidden;
     }
 
-    .left-panel, .right-panel {
+    .left-panel,
+    .right-panel {
       padding: 16px;
       display: flex;
       flex-direction: column;
@@ -69,12 +66,13 @@
       font-weight: 900;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      margin: 4px 0 8px;
+      margin: 2px 0 8px;
       color: #f8fbff;
     }
 
     .money-box,
-    .stat-box {
+    .stat-box,
+    .action-box {
       background: rgba(255,255,255,0.02);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -99,7 +97,7 @@
       font-size: 2.2rem;
       font-weight: 900;
       color: #a7f3d0;
-      text-shadow: 0 0 18px rgba(34,197,94,0.25);
+      text-shadow: 0 0 18px rgba(34,197,94,0.2);
     }
 
     .tool-grid {
@@ -116,8 +114,8 @@
       padding: 10px 12px;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.12s ease, border-color 0.12s ease;
       text-align: left;
+      transition: transform 0.12s ease, border-color 0.12s ease;
       touch-action: manipulation;
       user-select: none;
       -webkit-user-select: none;
@@ -144,14 +142,35 @@
 
     .state-select {
       width: 100%;
-      border: 1px solid var(--border);
+      padding: 12px 10px;
       border-radius: 10px;
+      border: 1px solid var(--border);
       background: rgba(255,255,255,0.02);
       color: var(--text);
       font-size: 0.92rem;
       font-weight: 700;
-      padding: 12px 10px;
       touch-action: manipulation;
+    }
+
+    .mini-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .mini-btn {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .mini-btn:hover {
+      border-color: rgba(34,197,94,0.5);
     }
 
     h3 {
@@ -191,7 +210,6 @@
       height: 12px;
       border-radius: 50%;
       display: inline-block;
-      border: 1px solid rgba(255,255,255,0.35);
     }
 
     .center-panel {
@@ -261,35 +279,16 @@
       .center-panel { order: 1; }
       .left-panel { order: 2; }
       .right-panel { order: 3; }
-      canvas { min-height: 500px; }
+      canvas { min-height: 520px; }
     }
 
-    @media (max-width: 640px) {
-      body {
-        padding: 10px;
-      }
-
-      #app {
-        gap: 10px;
-      }
-
-      .tool-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .title {
-        font-size: 1.4rem;
-        letter-spacing: 0.04em;
-      }
-
-      .tool {
-        padding: 8px 10px;
-        font-size: 0.82rem;
-      }
-
-      .money {
-        font-size: 1.7rem;
-      }
+    @media (max-width: 680px) {
+      body { padding: 10px; }
+      #app { gap: 10px; }
+      .tool-grid, .mini-actions { grid-template-columns: 1fr 1fr; }
+      .title { font-size: 1.55rem; }
+      .tool { padding: 8px 10px; font-size: 0.82rem; }
+      .money { font-size: 1.7rem; }
     }
   </style>
 </head>
@@ -323,7 +322,17 @@
           <button class="tool" data-tool="playground"><span>Playground</span><small>Kids</small></button>
           <button class="tool" data-tool="skyscraper"><span>Skyscraper</span><small>City</small></button>
           <button class="tool" data-tool="landmark"><span>Landmark</span><small>Famous</small></button>
-          <button class="tool" data-tool="erase"><span>Erase</span><small>Clear</small></button>
+          <button class="tool" data-tool="erase" style="grid-column: 1 / -1;"><span>Erase</span><small>Clear tile</small></button>
+        </div>
+      </div>
+
+      <div class="action-box">
+        <h3>Actions</h3>
+        <div class="mini-actions">
+          <button class="mini-btn" id="saveBtn">Save</button>
+          <button class="mini-btn" id="loadBtn">Load</button>
+          <button class="mini-btn" id="clearStateBtn">Clear State</button>
+          <button class="mini-btn" id="resetBtn">Reset All</button>
         </div>
       </div>
 
@@ -361,25 +370,30 @@
         <h3>How to Play</h3>
         <ul>
           <li>Select a tool from the left panel.</li>
-          <li>Tap a tile to place a building or road.</li>
-          <li>Use two-finger or long press to erase.</li>
-          <li>Switch states to move through all 50 states by statehood order.</li>
-          <li>Everything is visible immediately on the map.</li>
+          <li>Tap or click a tile to build.</li>
+          <li>Right-click or long press to erase.</li>
+          <li>Switch states to visit the United States in statehood order.</li>
+          <li>Use Save to keep your progress when offline.</li>
         </ul>
       </div>
 
       <div class="stat-box">
-        <h3>Online + Offline</h3>
+        <h3>Offline + Online</h3>
         <ul>
-          <li>Works as a static HTML page.</li>
-          <li>No external libraries required.</li>
-          <li>Runs fully offline in a browser.</li>
+          <li>Single-file HTML app.</li>
+          <li>No external libraries.</li>
+          <li>Runs locally or on GitHub Pages.</li>
         </ul>
       </div>
 
       <div class="stat-box">
         <h3>Current Tool</h3>
         <div id="toolLabel" style="font-size:1.28rem; font-weight:900;">Road</div>
+      </div>
+
+      <div class="stat-box">
+        <h3>Save Status</h3>
+        <div id="saveStatus" style="color: #a7f3d0; font-weight: 700;">Ready</div>
       </div>
     </aside>
   </div>
@@ -395,7 +409,13 @@
     const toolLabelEl = document.getElementById('toolLabel');
     const statusLabelEl = document.getElementById('statusLabel');
     const stateFactEl = document.getElementById('stateFact');
+    const saveStatusEl = document.getElementById('saveStatus');
+    const saveBtn = document.getElementById('saveBtn');
+    const loadBtn = document.getElementById('loadBtn');
+    const clearStateBtn = document.getElementById('clearStateBtn');
+    const resetBtn = document.getElementById('resetBtn');
 
+    const STORAGE_KEY = 'america-builder-save-v1';
     const TILE = 32;
     const COLS = 24;
     const ROWS = 16;
@@ -414,7 +434,7 @@
       { number: 11, state: 'New York', city: 'New York City', landmark: 'Statue of Liberty', accent: '#f7d564', base: '#d7e9d8' },
       { number: 12, state: 'North Carolina', city: 'Charlotte', landmark: 'Biltmore Estate', accent: '#f6d973', base: '#d8efd6' },
       { number: 13, state: 'Rhode Island', city: 'Providence', landmark: 'Newport Mansions', accent: '#f0d56d', base: '#d9f0d8' },
-      { number: 14, state: 'Vermont', city: 'Burlington', landmark: 'Ben & Jerry's Factory', accent: '#f0d36f', base: '#dfeee3' },
+      { number: 14, state: 'Vermont', city: 'Burlington', landmark: 'Ben & Jerry\\'s Factory', accent: '#f0d36f', base: '#dfeee3' },
       { number: 15, state: 'Kentucky', city: 'Louisville', landmark: 'Louisville Slugger Museum', accent: '#f1d067', base: '#d9efc9' },
       { number: 16, state: 'Tennessee', city: 'Nashville', landmark: 'Music City', accent: '#f4d76d', base: '#d8efd8' },
       { number: 17, state: 'Ohio', city: 'Columbus', landmark: 'Rock and Roll Hall of Fame', accent: '#f4d06a', base: '#d8efd0' },
@@ -473,6 +493,10 @@
     let currentStateIndex = 0;
     let grid = [];
 
+    function createEmptyGrid() {
+      return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    }
+
     function buildStateSelector() {
       stateCatalog.forEach((entry) => {
         const option = document.createElement('option');
@@ -480,11 +504,74 @@
         option.textContent = `${entry.number}. ${entry.state} - ${entry.city}`;
         stateSelect.appendChild(option);
       });
-      stateSelect.value = '0';
     }
 
-    function createEmptyGrid() {
-      return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    function setSaveStatus(text, success = true) {
+      saveStatusEl.textContent = text;
+      saveStatusEl.style.color = success ? '#a7f3d0' : '#fca5a5';
+    }
+
+    function getStateSave() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object') return null;
+        return parsed;
+      } catch (err) {
+        return null;
+      }
+    }
+
+    function saveToStorage() {
+      try {
+        const data = {
+          selectedTool,
+          currentStateIndex,
+          grid
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        setSaveStatus('Saved locally');
+      } catch (err) {
+        setSaveStatus('Save failed', false);
+      }
+    }
+
+    function loadFromStorage() {
+      const data = getStateSave();
+      if (!data) {
+        setSaveStatus('No save found', false);
+        return;
+      }
+      if (Array.isArray(data.grid) && data.grid.length === ROWS) {
+        grid = data.grid.map((row) => Array.isArray(row) ? row.slice() : Array(COLS).fill(null));
+      }
+      if (Number.isInteger(data.currentStateIndex)) {
+        currentStateIndex = Math.max(0, Math.min(stateCatalog.length - 1, data.currentStateIndex));
+      }
+      if (data.selectedTool && toolNames[data.selectedTool]) {
+        selectedTool = data.selectedTool;
+      }
+      stateSelect.value = String(currentStateIndex);
+      updateHud();
+      render();
+      setSaveStatus('Game loaded');
+    }
+
+    function clearCurrentState() {
+      grid = createEmptyGrid();
+      render();
+      setSaveStatus('Current state cleared');
+    }
+
+    function resetAll() {
+      currentStateIndex = 0;
+      selectedTool = 'road';
+      stateSelect.value = '0';
+      grid = createEmptyGrid();
+      updateHud();
+      render();
+      setSaveStatus('Game reset');
     }
 
     function drawBaseGrid() {
@@ -682,28 +769,31 @@
       ctx.fillRect(px + 12, py + TILE - 11, TILE - 24, 5);
     }
 
+    function drawCell(x, y, cell) {
+      const px = x * TILE;
+      const py = y * TILE;
+      switch (cell.type) {
+        case 'road': drawRoad(px, py); break;
+        case 'home': drawHome(px, py); break;
+        case 'apartment': drawApartment(px, py); break;
+        case 'business': drawBusiness(px, py); break;
+        case 'school': drawSchool(px, py); break;
+        case 'hospital': drawHospital(px, py); break;
+        case 'clinic': drawClinic(px, py); break;
+        case 'park': drawPark(px, py); break;
+        case 'themepark': drawThemePark(px, py); break;
+        case 'playground': drawPlayground(px, py); break;
+        case 'skyscraper': drawSkyscraper(px, py); break;
+        case 'landmark': drawLandmark(px, py); break;
+      }
+    }
+
     function renderGrid() {
       drawBaseGrid();
       for (let y = 0; y < ROWS; y++) {
         for (let x = 0; x < COLS; x++) {
           const cell = grid[y][x];
-          if (!cell) continue;
-          const px = x * TILE;
-          const py = y * TILE;
-          switch (cell.type) {
-            case 'road': drawRoad(px, py); break;
-            case 'home': drawHome(px, py); break;
-            case 'apartment': drawApartment(px, py); break;
-            case 'business': drawBusiness(px, py); break;
-            case 'school': drawSchool(px, py); break;
-            case 'hospital': drawHospital(px, py); break;
-            case 'clinic': drawClinic(px, py); break;
-            case 'park': drawPark(px, py); break;
-            case 'themepark': drawThemePark(px, py); break;
-            case 'playground': drawPlayground(px, py); break;
-            case 'skyscraper': drawSkyscraper(px, py); break;
-            case 'landmark': drawLandmark(px, py); break;
-          }
+          if (cell) drawCell(x, y, cell);
         }
       }
     }
@@ -716,13 +806,14 @@
       statusLabelEl.textContent = `State ${active.number}: ${active.state}`;
       stateFactEl.textContent = `Landmark: ${active.landmark}`;
       toolLabelEl.textContent = toolNames[selectedTool];
+      stateSelect.value = String(currentStateIndex);
+      document.querySelectorAll('.tool').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.tool === selectedTool);
+      });
     }
 
     function setTool(tool) {
       selectedTool = tool;
-      document.querySelectorAll('.tool').forEach((btn) => {
-        btn.classList.toggle('active', btn.dataset.tool === tool);
-      });
       updateHud();
     }
 
@@ -763,21 +854,22 @@
       render();
     }
 
-    function switchState(index) {
-      currentStateIndex = Number(index);
-      grid = createEmptyGrid();
-      stateSelect.value = String(currentStateIndex);
-      updateHud();
-      render();
-    }
-
     function render() {
       renderGrid();
       updateHud();
     }
 
+    function switchState(index) {
+      currentStateIndex = Number(index);
+      grid = createEmptyGrid();
+      updateHud();
+      render();
+    }
+
     function init() {
       buildStateSelector();
+      stateSelect.value = '0';
+      grid = createEmptyGrid();
 
       stateSelect.addEventListener('change', (event) => {
         switchState(event.target.value);
@@ -798,7 +890,25 @@
         }
       }, { passive: false });
 
-      switchState(0);
+      saveBtn.addEventListener('click', () => {
+        saveToStorage();
+      });
+
+      loadBtn.addEventListener('click', () => {
+        loadFromStorage();
+      });
+
+      clearStateBtn.addEventListener('click', () => {
+        clearCurrentState();
+      });
+
+      resetBtn.addEventListener('click', () => {
+        resetAll();
+      });
+
+      setSaveStatus('Ready');
+      updateHud();
+      render();
     }
 
     init();
