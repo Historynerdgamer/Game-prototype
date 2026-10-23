@@ -53,8 +53,7 @@
       overflow: hidden;
     }
 
-    .left-panel,
-    .right-panel {
+    .left-panel, .right-panel {
       padding: 16px;
       display: flex;
       flex-direction: column;
@@ -70,9 +69,7 @@
       color: #f8fbff;
     }
 
-    .money-box,
-    .stat-box,
-    .action-box {
+    .money-box, .stat-box, .action-box {
       background: rgba(255,255,255,0.02);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -167,10 +164,6 @@
       font-weight: 700;
       cursor: pointer;
       touch-action: manipulation;
-    }
-
-    .mini-btn:hover {
-      border-color: rgba(34,197,94,0.5);
     }
 
     h3 {
@@ -437,14 +430,14 @@
       { number: 14, state: 'Vermont', city: 'Burlington', landmark: 'Ben & Jerry\\'s Factory', accent: '#f0d36f', base: '#dfeee3' },
       { number: 15, state: 'Kentucky', city: 'Louisville', landmark: 'Kentucky Derby', accent: '#f1d067', base: '#d9efc9' },
       { number: 16, state: 'Tennessee', city: 'Nashville', landmark: 'Music City', accent: '#f4d76d', base: '#d8efd8' },
-      { number: 17, state: 'Ohio', city: 'Columbus', landmark: 'King's Island', accent: '#f4d06a', base: '#d8efd0' },
+      { number: 17, state: 'Ohio', city: 'Cincinnati', landmark: 'King\\'s Island', accent: '#f4d06a', base: '#d8efd0' },
       { number: 18, state: 'Louisiana', city: 'New Orleans', landmark: 'French Quarter', accent: '#f9d26d', base: '#d8efcf' },
       { number: 19, state: 'Indiana', city: 'Indianapolis', landmark: 'Indianapolis Motor Speedway', accent: '#f4ce63', base: '#d5efd2' },
       { number: 20, state: 'Mississippi', city: 'Jackson', landmark: 'Vicksburg Battlefield', accent: '#f2d778', base: '#d7efcb' },
       { number: 21, state: 'Illinois', city: 'Chicago', landmark: 'Chicago Skyline', accent: '#f5d06f', base: '#d6e8d7' },
       { number: 22, state: 'Alabama', city: 'Birmingham', landmark: 'Civil Rights Memorial', accent: '#f2c972', base: '#dfeec9' },
       { number: 23, state: 'Maine', city: 'Portland', landmark: 'Acadia National Park', accent: '#efcf76', base: '#d7efd5' },
-      { number: 24, state: 'Missouri', city: 'St. Louis', landmark: 'Gateway Arch', accent: '#f7d768', base: '#d8efca' },
+      { number: 24, state: 'Missouri', city: 'Kansas City', landmark: 'Gateway Arch', accent: '#f7d768', base: '#d8efca' },
       { number: 25, state: 'Arkansas', city: 'Little Rock', landmark: 'Crystal Bridges', accent: '#f5d872', base: '#d7f0d3' },
       { number: 26, state: 'Michigan', city: 'Detroit', landmark: 'Detroit Riverfront', accent: '#f2d86c', base: '#d7efd8' },
       { number: 27, state: 'Florida', city: 'Orlando', landmark: 'Disney World', accent: '#f8d57c', base: '#d8f0ca' },
@@ -470,7 +463,7 @@
       { number: 47, state: 'New Mexico', city: 'Albuquerque', landmark: 'Roswell', accent: '#f4c96d', base: '#d8efc5' },
       { number: 48, state: 'Arizona', city: 'Phoenix', landmark: 'Grand Canyon', accent: '#f5c66e', base: '#d6f0c0' },
       { number: 49, state: 'Alaska', city: 'Anchorage', landmark: 'Mt. McKinley', accent: '#f0d267', base: '#dfeffe' },
-      { number: 50, state: 'Hawaii', city: 'Honolulu', landmark: 'Pearl Harbor, accent: '#f2d468', base: '#dfeee7' }
+      { number: 50, state: 'Hawaii', city: 'Honolulu', landmark: 'Pearl Harbor', accent: '#f2d468', base: '#dfeee7' }
     ];
 
     const toolNames = {
@@ -480,7 +473,7 @@
       business: 'Business',
       school: 'School',
       hospital: 'Hospital',
-      busines: 'Business,
+      clinic: 'Clinic',
       park: 'Park',
       themepark: 'Theme Park',
       playground: 'Playground',
@@ -525,11 +518,7 @@
 
     function saveToStorage() {
       try {
-        const data = {
-          selectedTool,
-          currentStateIndex,
-          grid
-        };
+        const data = { selectedTool, currentStateIndex, grid };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         setSaveStatus('Saved locally');
       } catch (err) {
@@ -884,27 +873,11 @@
 
       canvas.addEventListener('pointerdown', handleCanvasPointer);
       canvas.addEventListener('contextmenu', handleContextMenu);
-      canvas.addEventListener('touchstart', (event) => {
-        if (event.touches && event.touches.length > 1) {
-          event.preventDefault();
-        }
-      }, { passive: false });
 
-      saveBtn.addEventListener('click', () => {
-        saveToStorage();
-      });
-
-      loadBtn.addEventListener('click', () => {
-        loadFromStorage();
-      });
-
-      clearStateBtn.addEventListener('click', () => {
-        clearCurrentState();
-      });
-
-      resetBtn.addEventListener('click', () => {
-        resetAll();
-      });
+      saveBtn.addEventListener('click', () => saveToStorage());
+      loadBtn.addEventListener('click', () => loadFromStorage());
+      clearStateBtn.addEventListener('click', () => clearCurrentState());
+      resetBtn.addEventListener('click', () => resetAll());
 
       setSaveStatus('Ready');
       updateHud();
