@@ -883,7 +883,50 @@
       updateHud();
       render();
     }
+const buttons = document.querySelectorAll('.tool');
 
+buttons.forEach((button) => {
+  button.addEventListener('click', () => {
+    selectedTool = button.dataset.tool;
+
+    buttons.forEach((btn) => {
+      btn.classList.toggle('active', btn === button);
+    });
+
+    updateHud(buttons.forEach((btn) => {
+  btn.classList.toggle('active', btn.dataset.tool === selectedTool);
+}););
+  });
+});
+
+canvas.addEventListener('click', (event) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.floor(((event.clientX - rect.left) / rect.width) * COLS);
+  const y = Math.floor(((event.clientY - rect.top) / rect.height) * ROWS);
+
+  if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return;
+
+  if (selectedTool === 'erase') {
+    grid[y][x] = null;
+  } else {
+    grid[y][x] = { type: selectedTool };
+  }
+
+  render();
+});
+
+canvas.addEventListener('contextmenu', (event) => {
+  event.preventDefault();
+
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.floor(((event.clientX - rect.left) / rect.width) * COLS);
+  const y = Math.floor(((event.clientY - rect.top) / rect.height) * ROWS);
+
+  if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return;
+
+  grid[y][x] = null;
+  render();
+});
     init();
   </script>
 </body>
