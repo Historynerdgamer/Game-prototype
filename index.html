@@ -869,41 +869,7 @@
         switchState(event.target.value);
       });
 
-      document.querySelectorAll('.tool').forEach((button) => {
-        button.addEventListener('pointerdown', (event) => {
-          event.preventDefault();
-          setTool(button.dataset.tool);
-        });
-      });
-
-      canvas.addEventListener('pointerdown', handleCanvasPointer);
-      canvas.addEventListener('contextmenu', handleContextMenu);
-
-      saveBtn.addEventListener('click', () => saveToStorage());
-      loadBtn.addEventListener('click', () => loadFromStorage());
-      clearStateBtn.addEventListener('click', () => clearCurrentState());
-      resetBtn.addEventListener('click', () => resetAll());
-
-      setSaveStatus('Ready');
-      updateHud();
-      render();
-    }
-const buttons = document.querySelectorAll('.tool');
-
-buttons.forEach((button) => {
-  button.addEventListener('click', () => {
-    selectedTool = button.dataset.tool;
-
-    buttons.forEach((btn) => {
-      btn.classList.toggle('active', btn === button);
-    });
-
-    updateHud(buttons.forEach((btn) => {
-  btn.classList.toggle('active', btn.dataset.tool === selectedTool);
-}););
-  });
-});
-
+      
 canvas.addEventListener('click', (event) => {
   const rect = canvas.getBoundingClientRect();
   const x = Math.floor(((event.clientX - rect.left) / rect.width) * COLS);
@@ -916,24 +882,95 @@ canvas.addEventListener('click', (event) => {
   } else {
     grid[y][x] = { type: selectedTool };
   }
+    statesSelect.addEventListener('change', (event) => {
+        switchState(event.target.value);
+    });
+
+    document.querySelectorAll('.tool').forEach((button) => {
+        button.addEventListener('pointerdown', (event) => {
+            event.preventDefault();
+            setTool(button.dataset.tool);
+        });
+    });
+
+    canvas.addEventListener('pointerdown', handleCanvasPointerDown);
+    canvas.addEventListener('contextmenu', handleContextMenu);
+
+    saveBtn.addEventListener('click', () => saveToStorage());
+    loadBtn.addEventListener('click', () => loadFromStorage());
+    clearStateBtn.addEventListener('click', () => clearCurrentState());
+    resetBtn.addEventListener('click', () => resetAll());
+
+    setSaveStatus('Ready');
+    updateHud();
+    render();
+}
+
+const buttons = document.querySelectorAll('.tool');
+
+buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+        selectedTool = button.dataset.tool;
+
+        buttons.forEach((btn) => {
+            btn.classList.toggle('active', btn === button);
+        });
+
+        updateHud(buttons.forEach((btn) => {
+            btn.classList.toggle('active', btn.dataset.tool === selectedTool);
+        }));
+    });
+});
 
   render();
 });
+    // Directly connects your exact game buttons by their unique IDs
+    const gameButtons = [
+        'Road', 'Home', 'Apartment', 'Business', 'School', 'Hospital', 
+        'Clinic', 'Park', 'StreamPark', 'ThemePark', 'Shop', 'Factory', 'Monument'
+    ];
+    
+    gameButtons.forEach(id => {
+        const buttonElement = document.getElementById(id);
+        if (buttonElement) {
+            buttonElement.addEventListener('pointerdown', (event) => {
+                event.preventDefault();
+                setTool(id.toLowerCase());
+                console.log(id + " button activated!");
+            });
+        }
+    });
 
-canvas.addEventListener('contextmenu', (event) => {
-  event.preventDefault();
+    canvas.addEventListener('pointerdown', handleCanvasPointerDown);
+    canvas.addEventListener('contextmenu', (event) => event.preventDefault());
 
-  const rect = canvas.getBoundingClientRect();
-  const x = Math.floor(((event.clientX - rect.left) / rect.width) * COLS);
-  const y = Math.floor(((event.clientY - rect.top) / rect.height) * ROWS);
+    if (document.getElementById('saveBtn')) document.getElementById('saveBtn').addEventListener('click', () => saveToStorage());
+    if (document.getElementById('loadBtn')) document.getElementById('loadBtn').addEventListener('click', () => loadFromStorage());
+    if (document.getElementById('clearStateBtn')) document.getElementById('clearStateBtn').addEventListener('click', () => clearCurrentState());
+    if (document.getElementById('resetBtn')) document.getElementById('resetBtn').addEventListener('click', () => resetAll());
 
-  if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return;
+    setSaveStatus('Ready');
+    updateHud();
+    render();
+}
 
-  grid[y][x] = null;
-  render();
+canvas.addEventListener('click', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor(((event.clientX - rect.left) / rect.width) * COLS);
+    const y = Math.floor(((event.clientY - rect.top) / rect.height) * ROWS);
+    
+    if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return;
+    
+    if (selectedTool === 'erase') {
+        grid[y][x] = null;
+    } else {
+        grid[y][x] = { type: selectedTool };
+    }
+    render();
 });
-    init();
-  </script>
+
+init();
+</script>
 </body>
-</html> 
+</html>
 
