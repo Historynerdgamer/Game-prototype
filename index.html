@@ -944,10 +944,18 @@ buttons.forEach((button) => {
     canvas.addEventListener('pointerdown', handleCanvasPointerDown);
     canvas.addEventListener('contextmenu', (event) => event.preventDefault());
 
-    if (document.getElementById('saveBtn')) document.getElementById('saveBtn').addEventListener('click', () => saveToStorage());
-    if (document.getElementById('loadBtn')) document.getElementById('loadBtn').addEventListener('click', () => loadFromStorage());
-    if (document.getElementById('clearStateBtn')) document.getElementById('clearStateBtn').addEventListener('click', () => clearCurrentState());
-    if (document.getElementById('resetBtn')) document.getElementById('resetBtn').addEventListener('click', () => resetAll());
+       if (document.getElementById('Save')) {
+        document.getElementById('Save').onclick = () => saveToStorage();
+    }
+    if (document.getElementById('Load')) {
+        document.getElementById('Load').onclick = () => loadFromStorage();
+    }
+    if (document.getElementById('ClearState')) {
+        document.getElementById('ClearState').onclick = () => clearCurrentState();
+    }
+    if (document.getElementById('Reset')) {
+        document.getElementById('Reset').onclick = () => resetAll();
+    }
 
     setSaveStatus('Ready');
     updateHud();
