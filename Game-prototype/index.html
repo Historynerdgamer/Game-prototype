@@ -18,6 +18,7 @@
       --shadow: rgba(2, 6, 23, 0.48);
     }
 
+
     * { box-sizing: border-box; }
 
     html, body {
@@ -612,20 +613,22 @@
     }
 
     function bindCanvas() {
-      canvas.addEventListener('click', (event) => {
+    canvas.addEventListener('click', (event) => {
         const cell = getCellFromPointer(event);
         if (!cell) return;
-        paintCell(cell.x, cell.y);
-      });
+        grid[cell.y][cell.x] = selectedTool.toLowerCase();
+        render();
+    });
 
-      canvas.addEventListener('contextmenu', (event) => {
+    canvas.addEventListener('contextmenu', (event) => {
         event.preventDefault();
         const cell = getCellFromPointer(event);
         if (!cell) return;
         grid[cell.y][cell.x] = null;
         render();
-      });
-    }
+    });
+}
+
 
     function switchState(index) {
       currentStateIndex = Number(index);
