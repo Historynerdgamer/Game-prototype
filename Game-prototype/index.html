@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>America Builder</title>
+  <style>
+    :root {
+      --bg1: #0b1220;
+      --bg2: #111827;
+      --panel: rgba(15, 23, 42, 0.92);
+      --text: #edf6ff;
+      --muted: #b8c6d9;
+      --border: rgba(255,255,255,0.08);
+      --tool-bg: rgba(255,255,255,0.04);
+      --gold: #fbbf24;
+      --green: #22c55e;
+      --shadow: rgba(2, 6, 23, 0.48);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: linear-gradient(180deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 1460px;
+      min-height: 760px;
+      display: grid;
+      grid-template-columns: 290px 1fr 290px;
+      gap: 14px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 16px 36px var(--shadow);
+      overflow: hidden;
+    }
+
+    .left-panel, .right-panel {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .title {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 2px 0 8px;
+      color: #f8fbff;
+    }
+
+    .money-box, .stat-box, .action-box {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .money-box {
+      background: linear-gradient(180deg, rgba(34,197,94,0.18), rgba(34,197,94,0.05));
+      border-color: rgba(34,197,94,0.45);
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .money {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #a7f3d0;
+      text-shadow: 0 0 18px rgba(34,197,94,0.2);
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .tool {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--tool-bg);
+      color: var(--text);
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.12s ease, border-color 0.12s ease;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .tool:hover {
+      transform: translateY(-1px);
+      border-color: rgba(251,191,36,0.45);
+    }
+
+    .tool.active {
+      background: linear-gradient(180deg, rgba(251,191,36,0.18), rgba(251,191,36,0.05));
+      border-color: rgba(251,191,36,0.8);
+      box-shadow: inset 0 0 0 1px rgba(251,191,36,0.18);
+    }
+
+    .tool small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.68rem;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .state-select {
+      width: 100%;
+      padding: 12px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 700;
+      touch-action: manipulation;
+    }
+
+    .mini-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .mini-btn {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    h3 {
+      margin: 0 0 10px 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .city-name {
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      color: var(--text);
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .center-panel {
+      display: flex;
+      flex-direction: column;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 16px 36px var(--shadow);
+    }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15,23,42,0.7);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      font-weight: 700;
+    }
+
+    .mini-label {
+      color: var(--muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 650px;
+      background: linear-gradient(180deg, #92d79c 0%, #73bf87 100%);
+      cursor: crosshair;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    li { color: var(--muted); }
+
+    @media (max-width: 1200px) {
+      #app {
+        grid-template-columns: 1fr;
+      }
+      .center-panel { order: 1; }
+      .left-panel { order: 2; }
+      .right-panel { order: 3; }
+      canvas { min-height: 520px; }
+    }
+
+    @media (max-width: 680px) {
+      body { padding: 10px; }
+      #app { gap: 10px; }
+      .tool-grid, .mini-actions { grid-template-columns: 1fr 1fr; }
+      .title { font-size: 1.55rem; }
+      .tool { padding: 8px 10px; font-size: 0.82rem; }
+      .money { font-size: 1.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside class="panel left-panel">
+      <div class="title">America Builder</div>
+
+      <div class="money-box">
+        <div class="label">Budget</div>
+        <div class="money" id="moneyDisplay">∞</div>
+      </div>
+
+      <div class="stat-box">
+        <h3>State</h3>
+        <select id="stateSelect" class="state-select"></select>
+      </div>
+
+      <div class="stat-box">
+        <h3>Build Menu</h3>
+        <div class="tool-grid">
+          <button class="tool active" data-tool="road"><span>Road</span><small>Street</small></button>
+          <button class="tool" data-tool="home"><span>House</span><small>Home</small></button>
+          <button class="tool" data-tool="apartment"><span>Apartment</span><small>Housing</small></button>
+          <button class="tool" data-tool="business"><span>Business</span><small>Shop</small></button>
+          <button class="tool" data-tool="school"><span>School</span><small>Education</small></button>
+          <button class="tool" data-tool="hospital"><span>Hospital</span><small>Care</small></button>
+          <button class="tool" data-tool="clinic"><span>Clinic</span><small>Care</small></button>
+          <button class="tool" data-tool="park"><span>Park</span><small>Green</small></button>
+          <button class="tool" data-tool="themepark"><span>Theme Park</span><small>Fun</small></button>
+          <button class="tool" data-tool="playground"><span>Playground</span><small>Kids</small></button>
+          <button class="tool" data-tool="skyscraper"><span>Skyscraper</span><small>City</small></button>
+          <button class="tool" data-tool="landmark"><span>Landmark</span><small>Famous</small></button>
+          <button class="tool" data-tool="erase" style="grid-column: 1 / -1;"><span>Erase</span><small>Clear tile</small></button>
+        </div>
+      </div>
+
+      <div class="action-box">
+        <h3>Actions</h3>
+        <div class="mini-actions">
+          <button class="mini-btn" id="saveBtn">Save</button>
+          <button class="mini-btn" id="loadBtn">Load</button>
+          <button class="mini-btn" id="clearStateBtn">Clear State</button>
+          <button class="mini-btn" id="resetBtn">Reset All</button>
+        </div>
+      </div>
+
+      <div class="stat-box">
+        <h3>City Profile</h3>
+        <div class="city-name" id="cityName">Delaware</div>
+        <div id="cityState" style="color: var(--muted);">Wilmington</div>
+      </div>
+
+      <div class="stat-box">
+        <h3>Legend</h3>
+        <div class="legend">
+          <div class="chip"><span class="swatch" style="background:#5b6472"></span>Road</div>
+          <div class="chip"><span class="swatch" style="background:#d4eb93"></span>Home</div>
+          <div class="chip"><span class="swatch" style="background:#95a8ff"></span>Apartment</div>
+          <div class="chip"><span class="swatch" style="background:#f7d977"></span>Business</div>
+          <div class="chip"><span class="swatch" style="background:#7dd3fc"></span>School</div>
+          <div class="chip"><span class="swatch" style="background:#fca5a5"></span>Hospital</div>
+          <div class="chip"><span class="swatch" style="background:#4ade80"></span>Park</div>
+          <div class="chip"><span class="swatch" style="background:#f9a8d4"></span>Theme Park</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="center-panel">
+      <div class="hud">
+        <div class="status-pill"><span style="font-size:1.1rem;">🏙️</span> <span id="statusLabel">State 1: Delaware</span></div>
+        <div class="mini-label" id="stateFact">Landmark: First State</div>
+      </div>
+      <canvas id="gameCanvas" width="960" height="680"></canvas>
+    </main>
+
+    <aside class="panel right-panel">
+      <div class="stat-box">
+        <h3>How to Play</h3>
+        <ul>
+          <li>Select a tool from the left panel.</li>
+          <li>Tap or click a tile to build.</li>
+          <li>Right-click or long press to erase.</li>
+          <li>Switch states to visit the United States in statehood order.</li>
+          <li>Use Save to keep your progress when offline.</li>
+        </ul>
+      </div>
+
+      <div class="stat-box">
+        <h3>Offline + Online</h3>
+        <ul>
+          <li>Single-file HTML app.</li>
+          <li>No external libraries.</li>
+          <li>Runs locally or on GitHub Pages.</li>
+        </ul>
+      </div>
+
+      <div class="stat-box">
+        <h3>Current Tool</h3>
+        <div id="toolLabel" style="font-size:1.28rem; font-weight:900;">Road</div>
+      </div>
+
+      <div class="stat-box">
+        <h3>Save Status</h3>
+        <div id="saveStatus" style="color: #a7f3d0; font-weight: 700;">Ready</div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const stateSelect = document.getElementById('stateSelect');
+    const cityNameEl = document.getElementById('cityName');
+    const cityStateEl = document.getElementById('cityState');
+    const moneyDisplay = document.getElementById('moneyDisplay');
+    const toolLabelEl = document.getElementById('toolLabel');
+    const statusLabelEl = document.getElementById('statusLabel');
+    const stateFactEl = document.getElementById('stateFact');
+    const saveStatusEl = document.getElementById('saveStatus');
+    const saveBtn = document.getElementById('saveBtn');
+    const loadBtn = document.getElementById('loadBtn');
+    const clearStateBtn = document.getElementById('clearStateBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const STORAGE_KEY = 'america-builder-save-v1';
+    const TILE = 32;
+    const COLS = 24;
+    const ROWS = 16;
+
+    const toolNames = {
+      road: 'Road',
+      home: 'Home',
+      apartment: 'Apartment',
+      business: 'Business',
+      school: 'School',
+      hospital: 'Hospital',
+      clinic: 'Clinic',
+      park: 'Park',
+      themepark: 'Theme Park',
+      playground: 'Playground',
+      skyscraper: 'Skyscraper',
+      landmark: 'Landmark',
+      erase: 'Erase'
+    };
+
+    const stateCatalog = [
+      { number: 1, state: 'Delaware', city: 'Wilmington', landmark: 'First State' },
+      { number: 2, state: 'Pennsylvania', city: 'Philadelphia', landmark: 'Liberty Bell' },
+      { number: 3, state: 'New Jersey', city: 'Newark', landmark: 'Atlantic City Boardwalk' },
+      { number: 4, state: 'Georgia', city: 'Atlanta', landmark: 'Georgia Aquarium' },
+      { number: 5, state: 'Connecticut', city: 'Hartford', landmark: 'Mystic Seaport' },
+      { number: 6, state: 'Massachusetts', city: 'Boston', landmark: 'Freedom Trail' },
+      { number: 7, state: 'Maryland', city: 'Baltimore', landmark: 'Fort McHenry' },
+      { number: 8, state: 'South Carolina', city: 'Charleston', landmark: 'Charleston Waterfront' },
+      { number: 9, state: 'New Hampshire', city: 'Manchester', landmark: 'Mount Washington' },
+      { number: 10, state: 'Virginia', city: 'Richmond', landmark: 'Monticello' },
+      { number: 11, state: 'New York', city: 'New York City', landmark: 'Statue of Liberty' },
+      { number: 12, state: 'North Carolina', city: 'Asheville', landmark: 'Biltmore Estate' },
+      { number: 13, state: 'Rhode Island', city: 'Providence', landmark: 'Newport Mansions' },
+      { number: 14, state: 'Vermont', city: 'Burlington', landmark: "Ben & Jerry's Factory" },
+      { number: 15, state: 'Kentucky', city: 'Louisville', landmark: 'Kentucky Derby' },
+      { number: 16, state: 'Tennessee', city: 'Nashville', landmark: 'Music City' },
+      { number: 17, state: 'Ohio', city: 'Cincinnati', landmark: "King's Island" },
+      { number: 18, state: 'Louisiana', city: 'New Orleans', landmark: 'French Quarter' },
+      { number: 19, state: 'Indiana', city: 'Indianapolis', landmark: 'Indianapolis Motor Speedway' },
+      { number: 20, state: 'Mississippi', city: 'Jackson', landmark: 'Vicksburg Battlefield' },
+      { number: 21, state: 'Illinois', city: 'Chicago', landmark: 'Chicago Skyline' },
+      { number: 22, state: 'Alabama', city: 'Birmingham', landmark: 'Civil Rights Memorial' },
+      { number: 23, state: 'Maine', city: 'Portland', landmark: 'Acadia National Park' },
+      { number: 24, state: 'Missouri', city: 'St. Louis', landmark: 'Gateway Arch' },
+      { number: 25, state: 'Arkansas', city: 'Little Rock', landmark: 'Crystal Bridges' },
+      { number: 26, state: 'Michigan', city: 'Detroit', landmark: 'Detroit Riverfront' },
+      { number: 27, state: 'Florida', city: 'Orlando', landmark: 'Disney World' },
+      { number: 28, state: 'Texas', city: 'Dallas', landmark: 'The Alamo' },
+      { number: 29, state: 'Iowa', city: 'Des Moines', landmark: 'Amana Colonies' },
+      { number: 30, state: 'Wisconsin', city: 'Milwaukee', landmark: 'Cheese' },
+      { number: 31, state: 'California', city: 'Los Angeles', landmark: 'Hollywood' },
+      { number: 32, state: 'Minnesota', city: 'Minneapolis', landmark: 'Mall of America' },
+      { number: 33, state: 'Oregon', city: 'Portland', landmark: 'Portland Rose Garden' },
+      { number: 34, state: 'Kansas', city: 'Wichita', landmark: 'Tallgrass Prairie' },
+      { number: 35, state: 'West Virginia', city: 'Charleston', landmark: 'The Greenbrier' },
+      { number: 36, state: 'Nevada', city: 'Las Vegas', landmark: 'Las Vegas Strip' },
+      { number: 37, state: 'Nebraska', city: 'Omaha', landmark: 'Strategic Air Command Museum' },
+      { number: 38, state: 'Colorado', city: 'Denver', landmark: 'Rocky Mountains' },
+      { number: 39, state: 'North Dakota', city: 'Bismarck', landmark: 'Medora Badlands' },
+      { number: 40, state: 'South Dakota', city: 'Sioux Falls', landmark: 'Mount Rushmore' },
+      { number: 41, state: 'Montana', city: 'Billings', landmark: 'Glacier National Park' },
+      { number: 42, state: 'Washington', city: 'Seattle', landmark: 'Space Needle' },
+      { number: 43, state: 'Idaho', city: 'Boise', landmark: 'Sun Valley' },
+      { number: 44, state: 'Wyoming', city: 'Cheyenne', landmark: 'Yellowstone' },
+      { number: 45, state: 'Utah', city: 'Salt Lake City', landmark: 'Zion National Park' },
+      { number: 46, state: 'Oklahoma', city: 'Oklahoma City', landmark: 'Route 66' },
+      { number: 47, state: 'New Mexico', city: 'Albuquerque', landmark: 'Roswell' },
+      { number: 48, state: 'Arizona', city: 'Phoenix', landmark: 'Grand Canyon' },
+      { number: 49, state: 'Alaska', city: 'Anchorage', landmark: 'Mt. McKinley' },
+      { number: 50, state: 'Hawaii', city: 'Honolulu', landmark: 'Pearl Harbor' }
+    ];
+
+    let selectedTool = 'road';
+    let currentStateIndex = 0;
+    let grid = [];
+
+    function createEmptyGrid() {
+      return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    }
+
+    function buildStateSelector() {
+      stateCatalog.forEach((entry) => {
+        const option = document.createElement('option');
+        option.value = String(entry.number - 1);
+        option.textContent = `${entry.number}. ${entry.state} - ${entry.city}`;
+        stateSelect.appendChild(option);
+      });
+    }
+
+    function setSaveStatus(text) {
+      saveStatusEl.textContent = text;
+      saveStatusEl.style.color = '#a7f3d0';
+    }
+
+    function updateHud() {
+      const activeState = stateCatalog[currentStateIndex];
+      cityNameEl.textContent = activeState.city;
+      cityStateEl.textContent = activeState.state;
+      statusLabelEl.textContent = `State ${activeState.number}: ${activeState.state}`;
+      stateFactEl.textContent = `Landmark: ${activeState.landmark}`;
+      moneyDisplay.textContent = '∞';
+      toolLabelEl.textContent = toolNames[selectedTool];
+      stateSelect.value = String(currentStateIndex);
+
+      document.querySelectorAll('.tool').forEach((button) => {
+        const active = button.dataset.tool === selectedTool;
+        button.classList.toggle('active', active);
+      });
+    }
+
+    function getCellFromPointer(event) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+
+      const x = (event.clientX - rect.left) * scaleX;
+      const y = (event.clientY - rect.top) * scaleY;
+
+      const cellX = Math.floor(x / TILE);
+      const cellY = Math.floor(y / TILE);
+
+      if (cellX < 0 || cellY < 0 || cellX >= COLS || cellY >= ROWS) return null;
+      return { x: cellX, y: cellY };
+    }
+
+    function drawBaseGrid() {
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          const px = x * TILE;
+          const py = y * TILE;
+
+          ctx.fillStyle = '#cfe8d2';
+          ctx.fillRect(px, py, TILE, TILE);
+          ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+          ctx.strokeRect(px + 0.5, py + 0.5, TILE - 1, TILE - 1);
+        }
+      }
+    }
+
+    function drawTile(px, py, type) {
+      const colors = {
+        road: '#5b6472',
+        home: '#d4eb93',
+        apartment: '#95a8ff',
+        business: '#f7d977',
+        school: '#7dd3fc',
+        hospital: '#fca5a5',
+        clinic: '#86efac',
+        park: '#4ade80',
+        themepark: '#f9a8d4',
+        playground: '#67e8f9',
+        skyscraper: '#a78bfa',
+        landmark: '#fdba74'
+      };
+
+      ctx.fillStyle = colors[type] || '#ffffff';
+      ctx.fillRect(px, py, TILE, TILE);
+
+      ctx.strokeStyle = 'rgba(0,0,0,0.16)';
+      ctx.strokeRect(px + 1, py + 1, TILE - 2, TILE - 2);
+    }
+
+    function renderGrid() {
+      drawBaseGrid();
+
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          const cell = grid[y][x];
+          if (cell && cell.type) {
+            drawTile(x * TILE, y * TILE, cell.type);
+          }
+        }
+      }
+    }
+
+    function render() {
+      renderGrid();
+      updateHud();
+    }
+
+    function paintCell(x, y) {
+      if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return;
+
+      if (selectedTool === 'erase') {
+        grid[y][x] = null;
+      } else {
+        grid[y][x] = { type: selectedTool };
+      }
+
+      render();
+    }
+
+    function bindToolButtons() {
+      document.querySelectorAll('.tool').forEach((button) => {
+        button.addEventListener('click', () => {
+          selectedTool = button.dataset.tool;
+          updateHud();
+        });
+      });
+    }
+
+    function bindCanvas() {
+      canvas.addEventListener('click', (event) => {
+        const cell = getCellFromPointer(event);
+        if (!cell) return;
+        paintCell(cell.x, cell.y);
+      });
+
+      canvas.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+        const cell = getCellFromPointer(event);
+        if (!cell) return;
+        grid[cell.y][cell.x] = null;
+        render();
+      });
+    }
+
+    function switchState(index) {
+      currentStateIndex = Number(index);
+      grid = createEmptyGrid();
+      render();
+    }
+
+    function bindStateSelect() {
+      stateSelect.addEventListener('change', (event) => {
+        switchState(event.target.value);
+      });
+    }
+
+    function saveToStorage() {
+      try {
+        const payload = { selectedTool, currentStateIndex, grid };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        setSaveStatus('Saved');
+      } catch (error) {
+        setSaveStatus('Save failed');
+      }
+    }
+
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          setSaveStatus('No save found');
+          return;
+        }
+
+        const payload = JSON.parse(raw);
+
+        if (payload.currentStateIndex !== undefined) {
+          currentStateIndex = Number(payload.currentStateIndex);
+        }
+
+        if (payload.selectedTool) {
+          selectedTool = payload.selectedTool;
+        }
+
+        if (Array.isArray(payload.grid) && payload.grid.length === ROWS) {
+          grid = payload.grid.map((row) => Array.isArray(row) ? row.slice() : Array(COLS).fill(null));
+        }
+
+        stateSelect.value = String(currentStateIndex);
+        setSaveStatus('Loaded');
+        render();
+      } catch (error) {
+        setSaveStatus('Load failed');
+      }
+    }
+
+    function clearCurrentState() {
+      grid = createEmptyGrid();
+      render();
+      setSaveStatus('Cleared');
+    }
+
+    function resetAll() {
+      currentStateIndex = 0;
+      selectedTool = 'road';
+      grid = createEmptyGrid();
+      render();
+      setSaveStatus('Reset');
+    }
+
+    function init() {
+      buildStateSelector();
+      bindToolButtons();
+      bindCanvas();
+      bindStateSelect();
+
+      saveBtn.addEventListener('click', saveToStorage);
+      loadBtn.addEventListener('click', loadFromStorage);
+      clearStateBtn.addEventListener('click', clearCurrentState);
+      resetBtn.addEventListener('click', resetAll);
+
+      grid = createEmptyGrid();
+      stateSelect.value = '0';
+      updateHud();
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>
