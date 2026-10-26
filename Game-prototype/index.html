@@ -622,30 +622,17 @@ function render() {
 }
 
 function init() {
-    initStatesSelect();
     bindButtons();
     bindCanvas();
-    bindActionButtons();
+    bindStateSelect();
     
-    // Action button linkages
-    const saveBtn = document.getElementById('saveBtn');
-    if (saveBtn) saveBtn.addEventListener('click', () => {
-        localStorage.setItem(`america_builder_state_${statesSelect.value}`, JSON.stringify(grid));
-    });
+    saveBtn.addEventListener('click', saveToStorage);
+    loadBtn.addEventListener('click', loadFromStorage);
+    clearStateBtn.addEventListener('click', clearCurrentState);
+    resetBtn.addEventListener('click', resetAll);
     
-    const loadBtn = document.getElementById('loadBtn');
-    if (loadBtn) loadBtn.addEventListener('click', () => {
-        const saved = localStorage.getItem(`america_builder_state_${statesSelect.value}`);
-        if (saved) { grid = JSON.parse(saved); render(); }
-    });
-    
-        const clearStateBtn = document.getElementById('clearStateBtn');
-    if (clearStateBtn) clearStateBtn.addEventListener('click', () => {
-        grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
-        render();
-    });
-    
-    grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
+    grid = createEmptyGrid();
+    updateHUD();
     render();
 }
 
