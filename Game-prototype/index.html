@@ -551,72 +551,47 @@
     }
 
     function drawTile(px, py, type) {
-      const colors = {
-        road: '#5b6472',
-        home: '#d4eb93',
-        apartment: '#95a8ff',
-        business: '#f7d977',
-        school: '#7dd3fc',
-        hospital: '#fca5a5',
-        clinic: '#86efac',
-        park: '#4ade80',
-        themepark: '#f9a8d4',
-        playground: '#67e8f9',
-        skyscraper: '#a78bfa',
-        landmark: '#fdba74'
-      };
+const toolColors = {
+    'road': '#4a5568',        // Gray Road Tiles
+    'home': '#f56565',        // Red House Tiles
+    'apartment': '#ed8936',   // Orange Apartment Tiles
+    'business': '#48bb78',    // Green Business Tiles
+    'school': '#38b2ac',      // Teal School Tiles
+    'hospital': '#4299e1',    // Blue Hospital Tiles
+    'clinic': '#667eea',      // Purple Clinic Tiles
+    'park': '#9f7aea',        // Violet Park Tiles
+    'playground': '#319795',  // Dark Teal Playground Tiles
+    'themepark': '#ed64a6',   // Pink Theme Park Tiles
+    'skyscraper': '#718096',  // Slate Gray Skyscrapers
+    'landmark': '#d69e2e',    // Golden State Landmarks
+    'shop': '#ecc94b',        // Yellow Shops
+    'factory': '#a0aec0',     // Steel Gray Factories
+    'monument': '#e2e8f0'     // Marble White Monuments
+};
 
-      ctx.fillStyle = colors[type] || '#ffffff';
-      ctx.fillRect(px, py, TILE, TILE);
-
-      ctx.strokeStyle = 'rgba(0,0,0,0.16)';
-      ctx.strokeRect(px + 1, py + 1, TILE - 2, TILE - 2);
+function getCellFromPointer(event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor(((event.clientX - rect.left) / rect.width) * COLS);
+    const y = Math.floor(((event.clientY - rect.top) / rect.height) * ROWS);
+    if (x >= 0 && x < COLS && y >= 0 && y < ROWS) {
+        return { x, y };
     }
+    return null;
+}
 
-    function renderGrid() {
-      drawBaseGrid();
-
-      for (let y = 0; y < ROWS; y++) {
-        for (let x = 0; x < COLS; x++) {
-          const cell = grid[y][x];
-          if (cell && cell.type) {
-            drawTile(x * TILE, y * TILE, cell.type);
-          }
-        }
-      }
-    }
-
-    function render() {
-      renderGrid();
-      updateHud();
-    }
-
-    function paintCell(x, y) {
-      if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return;
-
-      if (selectedTool === 'erase') {
+function paintCell(x, y) {
+    if (selectedTool === 'erase') {
         grid[y][x] = null;
-      } else {
-        grid[y][x] = { type: selectedTool };
-      }
-
-      render();
+    } else {
+        grid[y][x] = selectedTool.toLowerCase();
     }
+}
 
-    function bindToolButtons() {
-      document.querySelectorAll('.tool').forEach((button) => {
-        button.addEventListener('click', () => {
-          selectedTool = button.dataset.tool;
-          updateHud();
-        });
-      });
-    }
-
-    function bindCanvas() {
+function bindCanvas() {
     canvas.addEventListener('click', (event) => {
         const cell = getCellFromPointer(event);
         if (!cell) return;
-        grid[cell.y][cell.x] = selectedTool.toLowerCase();
+        paintCell(cell.x, cell.y);
         render();
     });
 
@@ -629,91 +604,53 @@
     });
 }
 
-
-    function switchState(index) {
-      currentStateIndex = Number(index);
-      grid = createEmptyGrid();
-      render();
+function render() {
+    if (!ctx || !canvas) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            const cell = grid[r][c];
+            if (cell && toolColors[cell]) {
+                ctx.fillStyle = toolColors[cell];
+                ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            }
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        }
     }
+}
 
-    function bindStateSelect() {
-      stateSelect.addEventListener('change', (event) => {
-        switchState(event.target.value);
-      });
-    }
-
-    function saveToStorage() {
-      try {
-        const payload = { selectedTool, currentStateIndex, grid };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-        setSaveStatus('Saved');
-      } catch (error) {
-        setSaveStatus('Save failed');
-      }
-    }
-
-    function loadFromStorage() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) {
-          setSaveStatus('No save found');
-          return;
-        }
-
-        const payload = JSON.parse(raw);
-
-        if (payload.currentStateIndex !== undefined) {
-          currentStateIndex = Number(payload.currentStateIndex);
-        }
-
-        if (payload.selectedTool) {
-          selectedTool = payload.selectedTool;
-        }
-
-        if (Array.isArray(payload.grid) && payload.grid.length === ROWS) {
-          grid = payload.grid.map((row) => Array.isArray(row) ? row.slice() : Array(COLS).fill(null));
-        }
-
-        stateSelect.value = String(currentStateIndex);
-        setSaveStatus('Loaded');
+function init() {
+    initStatesSelect();
+    bindButtons();
+    bindCanvas();
+    bindActionButtons();
+    
+    // Action button linkages
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) saveBtn.addEventListener('click', () => {
+        localStorage.setItem(`america_builder_state_${statesSelect.value}`, JSON.stringify(grid));
+    });
+    
+    const loadBtn = document.getElementById('loadBtn');
+    if (loadBtn) loadBtn.addEventListener('click', () => {
+        const saved = localStorage.getItem(`america_builder_state_${statesSelect.value}`);
+        if (saved) { grid = JSON.parse(saved); render(); }
+    });
+    
+    const clearStateBtn = document.getElementById('clearStateBtn');
+    if (clearStateBtn) clearStateBtn.addEventListener('click', () => {
+        grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
         render();
-      } catch (error) {
-        setSaveStatus('Load failed');
-      }
-    }
+    });
+    
+    grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
+    render(); 
+}
 
-    function clearCurrentState() {
-      grid = createEmptyGrid();
-      render();
-      setSaveStatus('Cleared');
-    }
+init();
 
-    function resetAll() {
-      currentStateIndex = 0;
-      selectedTool = 'road';
-      grid = createEmptyGrid();
-      render();
-      setSaveStatus('Reset');
-    }
-
-    function init() {
-      buildStateSelector();
-      bindToolButtons();
-      bindCanvas();
-      bindStateSelect();
-
-      saveBtn.addEventListener('click', saveToStorage);
-      loadBtn.addEventListener('click', loadFromStorage);
-      clearStateBtn.addEventListener('click', clearCurrentState);
-      resetBtn.addEventListener('click', resetAll);
-
-      grid = createEmptyGrid();
-      stateSelect.value = '0';
-      updateHud();
-      render();
-    }
-
-    init();
-  </script>
+</script>
 </body>
 </html>
