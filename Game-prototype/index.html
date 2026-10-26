@@ -639,17 +639,18 @@ function init() {
         if (saved) { grid = JSON.parse(saved); render(); }
     });
     
-    const clearStateBtn = document.getElementById('clearStateBtn');
+        const clearStateBtn = document.getElementById('clearStateBtn');
     if (clearStateBtn) clearStateBtn.addEventListener('click', () => {
         grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
         render();
     });
     
     grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
-    render(); 
+    render();
 }
 
 init();
+
 
 </script>
 </body>
