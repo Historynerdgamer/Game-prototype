@@ -484,90 +484,66 @@
     ];
 
     let selectedTool = 'road';
-    let currentStateIndex = 0;
-    let grid = [];
+let grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
 
-    function createEmptyGrid() {
-      return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-    }
-
-    function buildStateSelector() {
-      stateCatalog.forEach((entry) => {
-        const option = document.createElement('option');
-        option.value = String(entry.number - 1);
-        option.textContent = `${entry.number}. ${entry.state} - ${entry.city}`;
-        stateSelect.appendChild(option);
-      });
-    }
-
-    function setSaveStatus(text) {
-      saveStatusEl.textContent = text;
-      saveStatusEl.style.color = '#a7f3d0';
-    }
-
-    function updateHud() {
-      const activeState = stateCatalog[currentStateIndex];
-      cityNameEl.textContent = activeState.city;
-      cityStateEl.textContent = activeState.state;
-      statusLabelEl.textContent = `State ${activeState.number}: ${activeState.state}`;
-      stateFactEl.textContent = `Landmark: ${activeState.landmark}`;
-      moneyDisplay.textContent = '∞';
-      toolLabelEl.textContent = toolNames[selectedTool];
-      stateSelect.value = String(currentStateIndex);
-
-      document.querySelectorAll('.tool').forEach((button) => {
-        const active = button.dataset.tool === selectedTool;
-        button.classList.toggle('active', active);
-      });
-    }
-
-    function getCellFromPointer(event) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-
-      const x = (event.clientX - rect.left) * scaleX;
-      const y = (event.clientY - rect.top) * scaleY;
-
-      const cellX = Math.floor(x / TILE);
-      const cellY = Math.floor(y / TILE);
-
-      if (cellX < 0 || cellY < 0 || cellX >= COLS || cellY >= ROWS) return null;
-      return { x: cellX, y: cellY };
-    }
-
-    function drawBaseGrid() {
-      for (let y = 0; y < ROWS; y++) {
-        for (let x = 0; x < COLS; x++) {
-          const px = x * TILE;
-          const py = y * TILE;
-
-          ctx.fillStyle = '#cfe8d2';
-          ctx.fillRect(px, py, TILE, TILE);
-          ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-          ctx.strokeRect(px + 0.5, py + 0.5, TILE - 1, TILE - 1);
-        }
-      }
-    }
-
-    function drawTile(px, py, type) {
 const toolColors = {
-    'road': '#4a5568',        // Gray Road Tiles
-    'home': '#f56565',        // Red House Tiles
-    'apartment': '#ed8936',   // Orange Apartment Tiles
-    'business': '#48bb78',    // Green Business Tiles
-    'school': '#38b2ac',      // Teal School Tiles
-    'hospital': '#4299e1',    // Blue Hospital Tiles
-    'clinic': '#667eea',      // Purple Clinic Tiles
-    'park': '#9f7aea',        // Violet Park Tiles
-    'playground': '#319795',  // Dark Teal Playground Tiles
-    'themepark': '#ed64a6',   // Pink Theme Park Tiles
-    'skyscraper': '#718096',  // Slate Gray Skyscrapers
-    'landmark': '#d69e2e',    // Golden State Landmarks
-    'shop': '#ecc94b',        // Yellow Shops
-    'factory': '#a0aec0',     // Steel Gray Factories
-    'monument': '#e2e8f0'     // Marble White Monuments
+    'road': '#4a5568',
+    'home': '#f56565',
+    'apartment': '#ed8936',
+    'business': '#48bb78',
+    'school': '#38b2ac',
+    'hospital': '#4299e1',
+    'clinic': '#667eea',
+    'park': '#9f7aea',
+    'playground': '#319795',
+    'themepark': '#ed64a6',
+    'skyscraper': '#718096',
+    'landmark': '#d69e2e',
+    'shop': '#ecc94b',
+    'factory': '#a0aec0',
+    'monument': '#e2e8f0'
 };
+
+function initStatesSelect() {
+    const statesSelect = document.getElementById('statesSelect');
+    if (!statesSelect) return;
+    statesSelect.innerHTML = '';
+    statesData.forEach((state, index) => {
+        const opt = document.createElement('option');
+        opt.value = index;
+        opt.textContent = `${index + 1}. ${state.name}`;
+        statesSelect.appendChild(opt);
+    });
+    statesSelect.addEventListener('change', (e) => {
+        updateProfile(e.target.value);
+        const saved = localStorage.getItem(`america_builder_state_${e.target.value}`);
+        grid = saved ? JSON.parse(saved) : Array(ROWS).fill().map(() => Array(COLS).fill(null));
+        render();
+    });
+}
+
+function updateProfile(index) {
+    const data = statesData[index];
+    if (document.getElementById('profileState')) document.getElementById('profileState').textContent = data.name;
+    if (document.getElementById('profileCapital')) document.getElementById('profileCapital').textContent = `Capital: ${data.capital}`;
+    if (document.getElementById('profileLandmark')) document.getElementById('profileLandmark').textContent = `Landmark: ${data.landmark}`;
+}
+
+function bindButtons() {
+    const buttons = document.querySelectorAll('.tool');
+    buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+            const toolName = button.getAttribute('data-tool');
+            if (toolName) {
+                selectedTool = toolName.toLowerCase();
+                buttons.forEach(btn => btn.classList.toggle('active', btn === button));
+                if (document.getElementById('currentToolDisplay')) {
+                    document.getElementById('currentToolDisplay').textContent = `Tool: ${selectedTool.toUpperCase()}`;
+                }
+            }
+        });
+    });
+}
 
 function getCellFromPointer(event) {
     const rect = canvas.getBoundingClientRect();
@@ -622,17 +598,28 @@ function render() {
 }
 
 function init() {
+    initStatesSelect();
     bindButtons();
     bindCanvas();
-    bindStateSelect();
     
-    saveBtn.addEventListener('click', saveToStorage);
-    loadBtn.addEventListener('click', loadFromStorage);
-    clearStateBtn.addEventListener('click', clearCurrentState);
-    resetBtn.addEventListener('click', resetAll);
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) saveBtn.addEventListener('click', () => {
+        localStorage.setItem(`america_builder_state_${document.getElementById('statesSelect').value}`, JSON.stringify(grid));
+    });
     
-    grid = createEmptyGrid();
-    updateHUD();
+    const loadBtn = document.getElementById('loadBtn');
+    if (loadBtn) loadBtn.addEventListener('click', () => {
+        const saved = localStorage.getItem(`america_builder_state_${document.getElementById('statesSelect').value}`);
+        if (saved) { grid = JSON.parse(saved); render(); }
+    });
+    
+    const clearStateBtn = document.getElementById('clearStateBtn');
+    if (clearStateBtn) clearStateBtn.addEventListener('click', () => {
+        grid = Array(ROWS).fill().map(() => Array(COLS).fill(null));
+        render();
+    });
+    
+    updateProfile(0);
     render();
 }
 
