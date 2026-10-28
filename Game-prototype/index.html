@@ -504,7 +504,8 @@ const toolColors = {
     'monument': '#e2e8f0'
 };
 
-function initStatesSelect() {
+
+function buildStateSelector() {
     const statesSelect = document.getElementById('statesSelect');
     if (!statesSelect) return;
     statesSelect.innerHTML = '';
@@ -547,8 +548,13 @@ function bindButtons() {
 
 function getCellFromPointer(event) {
     const rect = canvas.getBoundingClientRect();
-    const x = Math.floor(((event.clientX - rect.left) / rect.width) * COLS);
-    const y = Math.floor(((event.clientY - rect.top) / rect.height) * ROWS);
+    const clientX = event.clientX || (event.touches && event.touches[0] ? event.touches[0].clientX : null);
+    const clientY = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : null);
+    
+    if (clientX === null || clientY === null) return null;
+    
+    const x = Math.floor(((clientX - rect.left) / rect.width) * COLS);
+    const y = Math.floor(((clientY - rect.top) / rect.height) * ROWS);
     if (x >= 0 && x < COLS && y >= 0 && y < ROWS) {
         return { x, y };
     }
@@ -563,7 +569,15 @@ function paintCell(x, y) {
     }
 }
 
+
 function bindCanvas() {
+    canvas.addEventListener('mousedown', (event) => {
+        if (event.button === 0) {
+            const cell = getCellFromPointer(event);
+            if (cell) { paintCell(cell.x, cell.y); render(); }
+        }
+    });
+
     canvas.addEventListener('click', (event) => {
         const cell = getCellFromPointer(event);
         if (!cell) return;
@@ -578,6 +592,20 @@ function bindCanvas() {
         grid[cell.y][cell.x] = null;
         render();
     });
+
+    // Tap once to draw on mobile
+    canvas.addEventListener('touchstart', (event) => {
+        event.preventDefault();
+        const cell = getCellFromPointer(event);
+        if (cell) { paintCell(cell.x, cell.y); render(); }
+    }, { passive: false });
+
+    // Drag your finger continuously to draw on mobile!
+    canvas.addEventListener('touchmove', (event) => {
+        event.preventDefault();
+        const cell = getCellFromPointer(event);
+        if (cell) { paintCell(cell.x, cell.y); render(); }
+    }, { passive: false });
 }
 
 function render() {
@@ -598,7 +626,7 @@ function render() {
 }
 
 function init() {
-    initStatesSelect();
+    buildStateSelector();
     bindButtons();
     bindCanvas();
     
